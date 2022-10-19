@@ -1,11 +1,7 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
-
-Header.propTypes = {
-	children: PropTypes.element.isRequired,
-	href: PropTypes.string.isRequired,
-};
+import React from "react";
+import PropTypes from "prop-types";
+import styled from "styled-components";
+import { AccioBrand } from "components/brand";
 
 const HeaderContainer = styled.header`
 	display: flex;
@@ -18,7 +14,7 @@ const HeaderContainer = styled.header`
 	padding: auto 1em;
 	z-index: 1;
 	&:before {
-		content: '';
+		content: "";
 		display: block;
 		position: absolute;
 		top: 50px;
@@ -52,30 +48,6 @@ const HeaderSearchBar = styled.input`
 	}
 `;
 
-const Brand = styled.div`
-	display: flex;
-	flex-direction: row;
-	justify-content: space-around;
-	align-items: center;
-	flex-wrap: nowrap;
-	font-size: 2em;
-	font-family: 'JetBrains Mono';
-	font-weight: 900;
-	margin: auto 2em;
-	cursor: pointer;
-`;
-
-const AccioLogo = styled.div``;
-
-const AccioLogoText = styled.div`
-	margin: auto 0.5em;
-	background: -webkit-linear-gradient(top left, #eb79b9, #ffcc31, #4ecd6f);
-	-webkit-background-clip: text;
-	background-clip: text;
-	-webkit-text-fill-color: transparent;
-	color: transparent;
-`;
-
 const Menu = styled.div`
 	display: flex;
 	flex-direction: row;
@@ -97,13 +69,8 @@ const MenuOption = styled.a`
 function Header() {
 	return (
 		<HeaderContainer>
-			<Brand>
-				<AccioLogo>🧙‍♂️</AccioLogo>
-				<AccioLogoText>Accio</AccioLogoText>
-			</Brand>
-
+			<AccioBrand />
 			<HeaderSearchBar placeholder="Search for tags, types, folders and documents" type="text" />
-
 			<Menu>
 				<MenuOption href="#">🕵️</MenuOption>
 				<MenuOption href="#">📥️</MenuOption>

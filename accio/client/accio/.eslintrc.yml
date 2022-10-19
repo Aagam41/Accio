@@ -20,8 +20,12 @@ rules:
     - unix
   quotes:
     - error
-    - single
+    - double
   semi:
     - error
     - always
+  no-unused-vars:
+    - off
+  react/prop-types:
+    - off
 

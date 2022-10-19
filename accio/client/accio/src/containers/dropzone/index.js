@@ -1,3 +1,4 @@
-import Dropzone from './Dropzone';
+import Dropzone from "./Dropzone";
 
 export default Dropzone;
+

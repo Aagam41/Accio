@@ -1,6 +1,6 @@
-import React from 'react';
-import styled from 'styled-components';
-import { useDropzone } from 'react-dropzone';
+import React from "react";
+import styled from "styled-components";
+import { useDropzone } from "react-dropzone";
 
 const StyledDropzone = styled.div`
 	margin: 0;
@@ -24,9 +24,9 @@ function Dropzone() {
 
 	return (
 		<section className="container">
-			<StyledDropzone {...getRootProps({ className: 'dropzone' })}>
+			<StyledDropzone {...getRootProps({ className: "dropzone" })}>
 				<input {...getInputProps()} />
-				<p>⬆️ Drag {'&'} drop your files to upload</p>
+				<p>⬆️ Drag {"&"} drop your files to upload</p>
 			</StyledDropzone>
 		</section>
 	);

@@ -3,76 +3,59 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-
 		<title>Accio</title>
-
-		
-
 		<style>
-			
+      *, *::before, *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-			.mainCategory-toggler {
+			.conatiner {
+				height: 100vh;
+				width: 100vw;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+			}
+
+			.brand {
 				display: flex;
 				flex-direction: row;
-				text-align: left;
-				border-bottom: 1px solid #00000020;
-				padding: 0.3em 2em;
-				padding-right: 1em;
-				background-color: #00000010;
+				justify-content: space-around;
+				align-items: center;
+				flex-wrap: nowrap;
+				font-size: 2em;
+				font-family: 'JetBrains Mono';
+				font-weight: 900;
+				margin: auto 2em;
 				cursor: pointer;
 			}
-
-			.mainCategory-toggler .icon {
-				margin-left: auto;
-				transform: rotate(0deg);
-			}
-
-			.mainCategory-toggler.collapsed .icon {
-				transform: rotate(-90deg);
-			}
-
-			.mainCategory-collapse .mainCategory-item:hover,
-			.mainCategory-collapse .mainCategory-concrete-subitem:hover,
-			.mainCategory-collapse .mainCategory-concrete-subitem.active {
-				background-color: var(--category-background-color-hover);
-			}
-
-			.mainCategory-item {
-				display: flex;
-				flex-direction: row;
-				text-align: left;
-				padding: 0.3em 0em;
-				padding-right: 1em;
-				background-color: var(--category-background-color);
-				cursor: pointer;
-			}
-
-			.mainCategory-item .icon {
-				padding: 0 0.5em;
-				transform: rotate(0deg);
-				transform: translateY(-0.1em);
-			}
-
-			.mainCategory-item.collapsed .icon {
-				transform: rotate(-90deg);
-			}
-
-			.mainCategory-item > .icon > img {
-				height: 1em;
-				width: 1em;
+			.logotext {
+				margin: auto 0.5em;
+				background: -webkit-linear-gradient(top left, #eb79b9, #ffcc31, #4ecd6f);
+				-webkit-background-clip: text;
+				background-clip: text;
+				-webkit-text-fill-color: transparent;
+				color: transparent;
 			}
 		</style>
 	</head>
 	<body>
-		<main>
-			<div class="dropzone"><span>⬆️ Drag & drop your files to upload</span></div>
-
-			<div class="container">
-				
-			  
+		<div class="conatiner">
+			<div>
+          <div class="brand">
+            <div class="logo">🧙‍♂️</div>
+            <div class="logotext">Accio</div>
+          </div>
+      </div>
+			<div>
+				<form method="post">
+					<input value="" name="username" placeholder="Username" type="text"></input>
+          <input type="submit" name="submit" value="Submit">
+        </form>
 			</div>
-		</main>
-
-		
+		</div>
 	</body>
 </html>
