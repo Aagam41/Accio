@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useCallback } from "react";
 import styled from "styled-components";
 import { useDropzone } from "react-dropzone";
+import ReactModal from "react-modal";
+import { useModal } from "react-modal-hook";
 
 const StyledDropzone = styled.div`
 	margin: 0;
@@ -19,8 +21,50 @@ const StyledDropzone = styled.div`
 	align-items: center;
 `;
 
+const Modal = styled(ReactModal)`
+	position: absolute;
+	top: calc((100vh - 80%) / 2);
+	left: calc((100vw - 80%) / 2);
+	width: 80%;
+	height: 80%;
+	background-color: white;
+	box-shadow: 0 0 2em 4px #bebebe;
+	border-radius: 1em;
+	padding: 2em;
+	.overlay {
+		background-color: transparent;
+	}
+`;
+
 function Dropzone() {
-	const { getRootProps, getInputProps } = useDropzone({ noKeyboard: true });
+	const [showModal, hideModal] = useModal(() => {
+		Modal.setAppElement("#root");
+		return (
+			<Modal isOpen overlayClassName="overlay">
+				<p>Modal content</p>
+				<button onClick={hideModal}>Hide modal</button>
+			</Modal>
+		);
+	});
+
+	const onDrop = useCallback((acceptedFiles) => {
+		acceptedFiles.forEach((file) => {
+			showModal();
+			// const reader = new FileReader();
+
+			// reader.onabort = () => console.log("file reading was aborted");
+			// reader.onerror = () => console.log("file reading has failed");
+			// reader.onload = () => {
+			// 	// Do whatever you want with the file contents
+			// 	const binaryStr = reader.result;
+			// 	console.log(binaryStr);
+			// };
+			// reader.readAsArrayBuffer(file);
+			console.log(file);
+		});
+	}, []);
+
+	const { getRootProps, getInputProps } = useDropzone({ onDrop, noKeyboard: true });
 
 	return (
 		<section className="container">

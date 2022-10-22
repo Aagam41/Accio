@@ -2,82 +2,196 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { redirect, useNavigate } from "react-router-dom";
 import { axiosInstance, useToken } from "services/authentication";
 import {
-	AUTH_API_AUTHORIZATION_HEADER,
-	AUTH_API_BASE_URL,
-	AUTH_API_LOGIN_URL,
-	AUTH_API_LOGOUT_URL,
-	AUTH_API_REFRESH_TOKEN_URL,
-	AUTH_API_REGISTER_URL,
-	BASE_URL,
+	AUTHENTICATION_API_LOGIN_URL,
+	AUTHENTICATION_API_REFRESH_TOKEN_URL,
+	AUTHENTICATION_API_REGISTER_URL,
+	AUTHENTICATION_SERVICE_REACT_LOGIN_ROUTE,
+	AUTHENTICATION_SERVICE_REACT_LOGOUT_ROUTE,
 } from "config";
+import "./toastifyComponent.js";
+import { toast } from "react-toastify";
+import { registerHandleResponseError, loginHandleResponseError } from "./abstraction";
 
 function useAuth() {
 	const navigate = useNavigate();
 	const [user, setUser] = useState(null);
 	const handleTokenExpiration = useCallback(refreshToken, []);
+	const extractTokenPayloadAndSetUser = (token) => {
+		if (token) {
+			let payload = token.split(".")[1];
+			payload = JSON.parse(atob(payload));
+			setUser(payload);
+		} else {
+			setUser(null);
+		}
+	};
+	const handleTokenInvalidation = () => extractTokenPayloadAndSetUser(null);
+	const { clearToken, setToken } = useToken(handleTokenInvalidation, handleTokenExpiration);
 
-	const handleTokenInvalidation = () => setUser(null);
-	const { clearToken, setToken, tokenExists } = useToken(handleTokenInvalidation, handleTokenExpiration);
-
+	// acts as constructor to initialize tokens, react components like Toastify Conatiner
 	useMemo(async () => {
 		await handleTokenExpiration();
-		console.log("Reresh on first render");
 		user && navigate("/");
 	}, [handleTokenExpiration]);
 
 	const logout = useCallback(() => {
-		clearToken().finally(() => {
-			setUser(null);
-			navigate(BASE_URL);
-		});
+		extractTokenPayloadAndSetUser(null);
+		setToken(null);
+		navigate(AUTHENTICATION_SERVICE_REACT_LOGOUT_ROUTE);
+		// clearToken().finally(() => {
+		// 	setUser(null);
+		// 	navigate(AUTHENTICATION_SERVICE_REACT_LOGOUT_ROUTE);
+		// });
 	}, [clearToken]);
 
 	const register = useCallback(
 		async (userToRegister) => {
-			const { data } = await axiosInstance.post(AUTH_API_REGISTER_URL, userToRegister);
-			console.log(data);
-			// setUser(user);
-			setToken(data.access);
+			try {
+				const response = await axiosInstance.post(AUTHENTICATION_API_REGISTER_URL, userToRegister);
+				navigate(AUTHENTICATION_SERVICE_REACT_LOGIN_ROUTE);
+			} catch (error) {
+				if (error.response) {
+					registerHandleResponseError("register", error);
+				} else if (error.request) {
+					toast.info("Couldn't connect to the Authentication Service. Please try again later", {
+						toastId: "useauth_register_error_request",
+						icon: "💁",
+						externalTheme: "dark",
+						containerId: "auth-toastify-container",
+					});
+					console.log("useAuth Error [register -> error.request]:", error.request);
+				} else {
+					toast.error("Someting has gone wrong", {
+						toastId: "useauth_register_error",
+						icon: "🦨",
+						externalTheme: "dark",
+						containerId: "auth-toastify-container",
+					});
+					console.log("useAuth Error [register]:", error.message);
+				}
+			}
 		},
 		[setToken]
 	);
 
 	const login = useCallback(
 		async (username, password) => {
-			const {
-				data: { access, refresh },
-			} = await axiosInstance
-				.post(AUTH_API_LOGIN_URL, {
+			try {
+				const response = await axiosInstance.post(AUTHENTICATION_API_LOGIN_URL, {
 					username,
 					password,
-				})
-				.catch((error) => {
-					console.log("useAuth [login]:", error);
 				});
-			setUser(access);
-			setToken(access);
-			localStorage.setItem("refresh_token", refresh);
+				extractTokenPayloadAndSetUser(response.data.access);
+				setToken(response.data.access);
+				localStorage.setItem("refresh_token", response.data.refresh);
+			} catch (error) {
+				if (error.response) {
+					loginHandleResponseError(error);
+				} else if (error.request) {
+					toast.info("Couldn't connect to the Authentication Service. Please try again later", {
+						toastId: "useauth_login_error_request",
+						icon: "💁",
+						externalTheme: "dark",
+						containerId: "auth-toastify-container",
+					});
+					console.log("useAuth Error [login -> error.request]:", error.request);
+				} else {
+					toast.error("Someting has gone wrong", {
+						toastId: "useauth_login_error",
+						icon: "🦨",
+						externalTheme: "dark",
+						containerId: "auth-toastify-container",
+					});
+					console.log("useAuth Error [login]:", error.message);
+				}
+			}
 		},
 		[setToken]
 	);
 
 	async function refreshToken() {
+		showLoader();
 		const refresh = localStorage.getItem("refresh_token");
 		if (refresh) {
-			const {
-				data: { access },
-			} = await axiosInstance
-				.post(AUTH_API_REFRESH_TOKEN_URL, {
+			try {
+				const response = await axiosInstance.post(AUTHENTICATION_API_REFRESH_TOKEN_URL, {
 					refresh,
-				})
-				.catch((error) => {
-					console.log("useAuth [refreshToken]:", error);
 				});
-			setUser(access);
-			console.log("useAuth: User is set", access);
-			setToken(access);
+				extractTokenPayloadAndSetUser(response.data.access);
+				setToken(response.data.access);
+				localStorage.setItem("refresh_token", response.data.refresh);
+			} catch (error) {
+				if (error.response) {
+					toast.error("No active account found with the given credentials", {
+						toastId: "useauth_refresh_token_error_response",
+						icon: "🚨",
+						externalTheme: "dark",
+						containerId: "auth-toastify-container",
+						onClose: () => {
+							navigate(AUTHENTICATION_SERVICE_REACT_LOGIN_ROUTE);
+						},
+					});
+					console.log(
+						"useAuth Error [refreshToken -> error.response]:",
+						error.response.status,
+						error.response.data,
+						error.response.headers
+					);
+				} else if (error.request) {
+					toast.info("Couldn't connect to the Authentication Service. Please try again later", {
+						toastId: "useauth_refresh_token_error_request",
+						icon: "💁",
+						externalTheme: "dark",
+						containerId: "auth-toastify-container",
+						onClose: () => {
+							navigate(AUTHENTICATION_SERVICE_REACT_LOGIN_ROUTE);
+						},
+					});
+					console.log("useAuth Error [refreshToken -> error.request]:", error.request);
+				} else {
+					toast.error("Someting has gone wrong", {
+						toastId: "useauth_refresh_token_error",
+						icon: "🦨",
+						externalTheme: "dark",
+						containerId: "auth-toastify-container",
+						onClose: () => {
+							navigate(AUTHENTICATION_SERVICE_REACT_LOGIN_ROUTE);
+						},
+					});
+					console.log("useAuth Error [refreshToken]:", error.message);
+				}
+			}
 		} else {
-			console.log("useAuth [refreshToken]: refresh token is not set");
+			toast.warning("Couldn't validate credentials", {
+				toastId: "useauth_refresh_token_not_found",
+				icon: "🚧",
+				externalTheme: "dark",
+				containerId: "auth-toastify-container",
+				onClose: () => {
+					navigate(AUTHENTICATION_SERVICE_REACT_LOGIN_ROUTE);
+				},
+			});
+		}
+		showLoader(false);
+	}
+
+	function showLoader(show = true) {
+		if (show) {
+			toast.info("Loading data... Please wait", {
+				toastId: "useauth_loading",
+				icon: "🔃",
+				externalTheme: "dark",
+				containerId: "auth-toastify-container",
+				autoClose: false,
+				hideProgressBar: true,
+				closeOnClick: false,
+				pauseOnHover: false,
+				draggable: false,
+				progress: undefined,
+				closeButton: false,
+			});
+		} else {
+			toast.dismiss("useauth_loading");
 		}
 	}
 

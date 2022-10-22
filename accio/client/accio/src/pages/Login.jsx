@@ -7,6 +7,8 @@ import { AuthContext } from "services/authentication";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { REACT_BASE_ROUTE } from "config";
+import { render } from "@testing-library/react";
 
 const Body = styled.main`
 	background-color: #000000;
@@ -100,11 +102,10 @@ const TextInput = ({ label, ...props }) => {
 function Login() {
 	const navigate = useNavigate();
 	const { user, login } = useContext(AuthContext);
-	const navigateAfterLogin = () => {
-		user && navigate("/");
-	};
 
-	useEffect(navigateAfterLogin, [user]);
+	useEffect(() => {
+		user && navigate(REACT_BASE_ROUTE);
+	}, [user]);
 
 	return (
 		<>
@@ -117,22 +118,11 @@ function Login() {
 					})}
 					onSubmit={({ username, password }, { setSubmitting }) => {
 						setSubmitting(false);
-						login(username, password);
-						toast.error("No active account found with the given credentials", {
-							position: "top-center",
-							autoClose: 5000,
-							hideProgressBar: false,
-							newestOnTop: false,
-							closeOnClick: false,
-							rtl: false,
-							pauseOnFocusLoss: true,
-							draggable: false,
-							pauseOnHover: true,
-							theme: "colored",
-							progress: undefined,
-							icon: "🦖",
+						login(username, password).finally(() => {
+							if (user) {
+								navigate(REACT_BASE_ROUTE);
+							}
 						});
-						navigateAfterLogin();
 					}}
 				>
 					{({ errors, touched }) => (

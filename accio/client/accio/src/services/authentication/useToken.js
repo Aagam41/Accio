@@ -1,19 +1,15 @@
 import { useRef, useCallback, useEffect } from "react";
 import useTokenExpiration from "./useTokenExpiration";
 import {
-	AUTH_API_AUTHORIZATION_HEADER,
-	AUTH_API_BASE_URL,
-	AUTH_API_LOGIN_URL,
-	AUTH_API_LOGOUT_URL,
-	AUTH_API_REFRESH_TOKEN_URL,
-	AUTH_API_REGISTER_URL,
-	BASE_URL,
+	AUTHENTICATION_API_AUTHORIZATION_HEADER,
+	AUTHENTICATION_API_BASE_URL,
+	AUTHENTICATION_API_LOGOUT_URL,
 } from "config";
 import axios from "axios";
 import { configure } from "axios-hooks";
 
 const axiosInstance = axios.create({
-	baseURL: AUTH_API_BASE_URL,
+	baseURL: AUTHENTICATION_API_BASE_URL,
 });
 
 function useToken(handleTokenInvalidation, handleTokenExpiration) {
@@ -29,13 +25,11 @@ function useToken(handleTokenInvalidation, handleTokenExpiration) {
 		[setTokenExpiration]
 	);
 
-	const tokenExists = useCallback(() => {
-		return !!tokenRef.current;
-	}, []);
-
 	const clearToken = useCallback(
 		(shouldClearCookie = true) => {
-			const clearRefreshTokenCookie = shouldClearCookie ? axiosInstance.get("logout") : Promise.resolve();
+			const clearRefreshTokenCookie = shouldClearCookie
+				? axiosInstance.get(AUTHENTICATION_API_LOGOUT_URL)
+				: Promise.resolve();
 			return clearRefreshTokenCookie.finally(() => {
 				tokenRef.current = undefined;
 				clearRefreshTimeout();
@@ -46,7 +40,7 @@ function useToken(handleTokenInvalidation, handleTokenExpiration) {
 
 	useEffect(() => {
 		axiosInstance.interceptors.request.use((config) => {
-			config.headers.authorization = `${AUTH_API_AUTHORIZATION_HEADER} ${tokenRef.current}`;
+			config.headers.authorization = `${AUTHENTICATION_API_AUTHORIZATION_HEADER} ${tokenRef.current}`;
 			return config;
 		});
 
@@ -67,7 +61,6 @@ function useToken(handleTokenInvalidation, handleTokenExpiration) {
 	return {
 		clearToken,
 		setToken,
-		tokenExists,
 	};
 }
 
