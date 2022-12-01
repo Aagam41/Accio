@@ -29,7 +29,7 @@ function MultiplePageWarning() {
 			<MainContainer>
 				<AccioBrand flexDirection="column" fontSize="2em"></AccioBrand>
 				<h1 style={{ color: "#ffffff" }}>Ops!!! Looks like you have opened multiple pages.</h1>
-				<h3 style={{ color: "#ffffff80" }}>This can lead to another dimensions.</h3>
+				<h3 style={{ color: "#ffffff80" }}>This can lead to other dimensions.</h3>
 				<h5 style={{ color: "#ffffff80" }}>Please don&lsquo;t wander off.</h5>
 			</MainContainer>
 		</Body>
