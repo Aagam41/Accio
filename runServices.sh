@@ -1,5 +1,5 @@
 #!/bin/bash
-BASE_DIR='/home/aagam41/Development/Accio'
+BASE_DIR='/home/ubuntu/Development/Accio'
 
 # Chaning to BASE_DIR for safety
 cd $BASE_DIR
