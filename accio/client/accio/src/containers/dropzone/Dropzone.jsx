@@ -1,8 +1,11 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useContext, useState } from "react";
 import styled from "styled-components";
 import { useDropzone } from "react-dropzone";
 import ReactModal from "react-modal";
 import { useModal } from "react-modal-hook";
+import axios from "axios";
+import { DOCUMENT_STORAGE_API_BASE_URL } from "config";
+import { AuthContext, useAuth } from "services/authentication";
 
 const StyledDropzone = styled.div`
 	margin: 0;
@@ -37,41 +40,57 @@ const Modal = styled(ReactModal)`
 `;
 
 function Dropzone() {
-	const [showModal, hideModal] = useModal(() => {
-		Modal.setAppElement("#root");
-		return (
-			<Modal isOpen overlayClassName="overlay">
-				<p>Modal content</p>
-				<button onClick={hideModal}>Hide modal</button>
-			</Modal>
-		);
-	});
+	const { user } = useContext(AuthContext);
+	const [isModelOpen, setModelOpen] = useState(false);
+	Modal.setAppElement("#root");
+	const openModal = () => setModelOpen(true);
+	const hideModal = () => setModelOpen(false);
 
 	const onDrop = useCallback((acceptedFiles) => {
+		openModal();
+		console.log(acceptedFiles);
 		acceptedFiles.forEach((file) => {
-			showModal();
-			// const reader = new FileReader();
-
-			// reader.onabort = () => console.log("file reading was aborted");
-			// reader.onerror = () => console.log("file reading has failed");
-			// reader.onload = () => {
-			// 	// Do whatever you want with the file contents
-			// 	const binaryStr = reader.result;
-			// 	console.log(binaryStr);
-			// };
-			// reader.readAsArrayBuffer(file);
 			console.log(file);
+			const formData = new FormData();
+			formData.append("document", file);
+			formData.append("path", file.path);
+			formData.append("last_modified", new Date(file.lastModified).toISOString());
+			formData.append("name", file.name);
+			formData.append("size", file.size);
+			formData.append("mime_type", file.size);
+			formData.append("upload_datetime", new Date().toISOString());
+			formData.append("user", user.username);
+
+			axios.post(`${DOCUMENT_STORAGE_API_BASE_URL}/document/`, formData, {
+				headers: { "Content-Type": "multipart/form-data" },
+			});
 		});
 	}, []);
 
-	const { getRootProps, getInputProps } = useDropzone({ onDrop, noKeyboard: true });
+	const { acceptedFiles, fileRejections, isDragActive, getRootProps, getInputProps } = useDropzone({
+		onDrop,
+		noKeyboard: true,
+	});
 
 	return (
 		<section className="container">
 			<StyledDropzone {...getRootProps({ className: "dropzone" })}>
 				<input {...getInputProps()} />
-				<p>⬆️ Drag {"&"} drop your files to upload</p>
+				<p>{isDragActive ? "Drop your files here 🔽" : "⬆️ Drag & drop your files to upload"}</p>
 			</StyledDropzone>
+
+			<Modal isOpen={isModelOpen} overlayClassName="overlay">
+				<p>Modal content</p>
+				<button onClick={hideModal}>Hide modal</button>
+				{acceptedFiles.map((file) => {
+					return (
+						<div key={file.name}>
+							<h4>{file.name}</h4>
+							<h6>{file.path}</h6>
+						</div>
+					);
+				})}
+			</Modal>
 		</section>
 	);
 }

@@ -14,14 +14,21 @@ import { registerHandleResponseError, loginHandleResponseError } from "./abstrac
 
 function useAuth() {
 	const navigate = useNavigate();
+	const [header, setHeader] = useState(null);
+	const [payload, setPayload] = useState(null);
 	const [user, setUser] = useState(null);
 	const handleTokenExpiration = useCallback(refreshToken, []);
 	const extractTokenPayloadAndSetUser = (token) => {
 		if (token) {
-			let payload = token.split(".")[1];
-			payload = JSON.parse(atob(payload));
-			setUser(payload);
+			const tokenPartition = token.split(".");
+			const header = JSON.parse(atob(tokenPartition[0]));
+			const payload = JSON.parse(atob(tokenPartition[1]));
+			setHeader(header);
+			setPayload({ username: payload.username, fullname: payload.fullname });
+			setUser({ username: payload.username, fullname: payload.fullname });
 		} else {
+			setHeader(null);
+			setPayload(null);
 			setUser(null);
 		}
 	};
@@ -198,6 +205,10 @@ function useAuth() {
 	return {
 		user,
 		setUser,
+		header,
+		setHeader,
+		payload,
+		setPayload,
 		register,
 		login,
 		logout,

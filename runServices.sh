@@ -1,5 +1,5 @@
 #!/bin/bash
-BASE_DIR='/home/ubuntu/Development/Accio'
+BASE_DIR="$HOME/Development/Accio"
 
 # Chaning to BASE_DIR for safety
 cd $BASE_DIR
@@ -16,6 +16,11 @@ npm start -- -a localhost --port 3000 &
 echo 'Starting Authentication Django Service on localhost:8000'
 cd "$BASE_DIR/accio/authentication"
 python3 manage.py runserver localhost:8000 &
+
+# Document Storage django service
+echo 'Starting Document Storage Django Service on localhost:8001'
+cd "$BASE_DIR/accio/document_storage"
+python3 manage.py runserver localhost:8001 &
 
 # Chaning to BASE_DIR for returning terminal back to its original location
 cd $BASE_DIR

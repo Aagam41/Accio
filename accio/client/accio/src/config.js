@@ -11,3 +11,5 @@ export const AUTHENTICATION_API_LOGOUT_URL = "api/token/blacklist/";
 export const AUTHENTICATION_API_REGISTER_URL = "api/register/";
 export const AUTHENTICATION_API_REFRESH_TOKEN_URL = "api/token/refresh/";
 
+export const DOCUMENT_STORAGE_API_BASE_URL = "http://localhost:8001";
+

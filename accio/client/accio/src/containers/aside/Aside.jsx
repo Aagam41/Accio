@@ -56,19 +56,28 @@ const SampleData = [
 		parent: 0,
 		droppable: true,
 		draggable: true,
-		text: "Folder 1",
+		text: "Root",
+		data: {
+			icon: {
+				expanded: "🌏️",
+				collapsed: "🌎️",
+			},
+		},
+		sortOrder: 0,
 	},
 	{
 		id: 2,
-		parent: 1,
+		parent: 0,
 		droppable: false,
-		text: "File 1-1",
+		text: "FirstFolder",
+		sortOrder: 2,
 	},
 	{
 		id: 3,
-		parent: 1,
+		parent: 0,
 		droppable: false,
-		text: "File 1-2",
+		text: "Nope",
+		sortOrder: 1,
 	},
 	{
 		id: 4,
@@ -168,10 +177,27 @@ function RootFolder(node, options) {
 	const clickHandler = useSingleAndDoubleClick(onToggle, () => {
 		console.log("2");
 	});
+
+	let icon = "🗄️";
+	if (isOpen) {
+		if (node.data && "icon" in node.data) {
+			icon = node.data.icon.expanded;
+		} else {
+			icon = "📂";
+		}
+	} else {
+		if (node.data && "icon" in node.data) {
+			icon = node.data.icon.collapsed;
+		} else {
+			icon = "📁";
+		}
+	}
+	icon += " "; // empty space for visual correctness
+
 	return (
 		<RootFolderContainer onClick={clickHandler} depth={depth} isRootFolder={node.parent == 0} hasChild={hasChild}>
 			<div style={{ width: "100%" }}>
-				{hasChild ? <span>{isOpen ? "📂 " : "📁 "}</span> : "🗃️ "}
+				{hasChild ? <span>{icon}</span> : "🗃️ "}
 				<span style={{ zIndex: 100 }}>{node.text}</span>
 			</div>
 		</RootFolderContainer>
@@ -182,6 +208,11 @@ function Aside() {
 	const treeRef = useRef(null);
 	const [treeData, setTreeData] = useState(SampleData);
 	const handleDrop = (newTree) => setTreeData(newTree);
+	const handleSort = (node1Data, node2Data) => {
+		const node1Order = node1Data.sortOrder ?? Infinity;
+		const node2Order = node2Data.sortOrder ?? Infinity;
+		return node1Order < node2Order ? -1 : 1;
+	};
 
 	return (
 		<AsideContainer>
@@ -193,6 +224,7 @@ function Aside() {
 						tree={treeData}
 						rootId={0}
 						render={RootFolder}
+						sort={handleSort}
 						dragPreviewRender={(monitorProps) => <div>{monitorProps.item.text}</div>}
 						onDrop={handleDrop}
 					/>

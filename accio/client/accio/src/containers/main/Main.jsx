@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import DocumentTable from "./Table";
 
 const MainContainer = styled.header`
 	padding: 2em;
@@ -37,13 +38,19 @@ const MenuOption = styled.a`
 	text-decoration: none;
 `;
 
+const ContainerBody = styled.div`
+	height: 500px;
+	padding: 0 10px 10px 10px;
+	overflow: scroll;
+`;
+
 function Main() {
 	return (
 		<MainContainer>
 			<Header>
 				<div>
-					<h1>DMS</h1>
-					<span>Projects / Modules / PostgreSQL / SQL Queries / DMS</span>
+					<h1>🌏️ Root</h1>
+					<span>root</span>
 				</div>
 				<Menu>
 					<MenuOption>⚙️</MenuOption>
@@ -52,7 +59,9 @@ function Main() {
 					<MenuOption>🪟</MenuOption>
 				</Menu>
 			</Header>
-			<div className="container-body"></div>
+			<ContainerBody>
+				<DocumentTable />
+			</ContainerBody>
 		</MainContainer>
 	);
 }

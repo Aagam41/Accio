@@ -43,8 +43,22 @@ function useToken(handleTokenInvalidation, handleTokenExpiration) {
 			config.headers.authorization = `${AUTHENTICATION_API_AUTHORIZATION_HEADER} ${tokenRef.current}`;
 			return config;
 		});
+		axios.interceptors.request.use((config) => {
+			config.headers.authorization = `${AUTHENTICATION_API_AUTHORIZATION_HEADER} ${tokenRef.current}`;
+			return config;
+		});
 
 		axiosInstance.interceptors.response.use(
+			(response) => response,
+			(error) => {
+				if (error.status === 401 && tokenRef.current) {
+					clearToken();
+					handleTokenInvalidation();
+				}
+				return Promise.reject(error);
+			}
+		);
+		axios.interceptors.response.use(
 			(response) => response,
 			(error) => {
 				if (error.status === 401 && tokenRef.current) {
